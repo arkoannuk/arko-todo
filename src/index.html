@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap w/ Vite</title>
+    <script type="module" src="./js/main.js"></script>
+</head>
+
+<body>
+    <div class="container py-4 px-3 mx-auto">
+        <h1>Hello, Bootstrap and Vite!</h1>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#todoFormModal">Add
+            Todo</button>
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="todoFormModal" tabindex="-1" aria-labelledby="todoFormModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="bookFormModalLabel">Add Todo</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="todoForm">
+                            <div class="mb-3">
+                                <label for="todoTitle" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="todoTitle">
+                            </div>
+                            <div class="mb-3">
+                                <label for="todoDesc" class="form-label">Description</label>
+                                <input type="text" class="form-control" id="todoDesc">
+                            </div>
+                            <div class="mb-3">
+                                <label for="todoDate" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="todoDate">
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="bookStatus">
+                                <label class="form-check-label" for="todoStarred">Starred?</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    </div>
+</body>
+
+</html>
