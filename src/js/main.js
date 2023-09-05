@@ -45,6 +45,7 @@ class DisplayController {
     showSelectedProject() {
         let project = document.getElementById('projectSelector').value
 
+        let showAll = document.querySelector('#showAll').checked
         let selectedProject = this.projectList[project]
         let selectedTodoList = selectedProject.todoList
 
@@ -53,13 +54,18 @@ class DisplayController {
             myNode.removeChild(myNode.lastChild);
         }
 
-        console.log(selectedTodoList)
-
-        selectedTodoList.forEach((Todo, index) => {
-            console.log(Todo.title)
-            console.log(index)
-            this.displayController.addTodoCard(Todo.title, Todo.desc, Todo.date, Todo.starred, index, project)
-        })
+        if (showAll) {
+            this.projectList.forEach((project, index) => {
+                let projectIndex = index
+                project.todoList.forEach((Todo, index) => {
+                    this.displayController.addTodoCard(Todo.title, Todo.desc, Todo.date, Todo.starred, index, projectIndex)
+                })
+            })
+        } else {
+            selectedTodoList.forEach((Todo, index) => {
+                this.displayController.addTodoCard(Todo.title, Todo.desc, Todo.date, Todo.starred, index, project)
+            })
+        }
     }
 
     addTodoCard(title, desc, date, starred, todoIndex, projectIndex) {
@@ -92,6 +98,7 @@ class App {
         document.getElementById('todoForm').addEventListener('submit', this.submitTodoForm.bind(this));
         document.getElementById('projectForm').addEventListener('submit', this.submitProjectForm.bind(this));
         document.getElementById('projectSelector').addEventListener('change', this.displayController.showSelectedProject.bind(this));
+        document.getElementById('showAll').addEventListener('change', this.displayController.showSelectedProject.bind(this));
     }
 
     addProject(name) {
