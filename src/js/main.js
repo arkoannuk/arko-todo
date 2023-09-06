@@ -23,15 +23,30 @@ class Project {
         this.displayController = new DisplayController()
     }
 
-    addTodo(title, desc, date, starred, project) {
-        this.todoList.push(new Todo(title, desc, date, starred, project))
+    addTodo(title, desc, date, starred, projectIndex) {
+        this.todoList.push(new Todo(title, desc, date, starred, projectIndex))
         let todoIndex = this.todoList.length - 1
-        this.displayController.addTodoCard(title, desc, date, starred, todoIndex, project)
+        this.displayController.addTodoCard(title, desc, date, starred, todoIndex, projectIndex)
+    }
+
+    deleteTodo(todoIndex, todoCard) {
+        this.todoList.splice(todoIndex, 1)
+        console.log(this.todoList)
+        this.displayController.deleteTodoCard(todoCard)
     }
 
 }
 
 class DisplayController {
+
+    deleteTodoCard(todoCard) {
+        let projectIndex = todoCard.dataset.projectIndex
+        todoCard.remove()
+        let remainingTodoCards = document.querySelectorAll(`[data-project-index="${projectIndex}"]`);
+        console.log(remainingTodoCards)
+        remainingTodoCards.forEach((card, index) => card.dataset.todoIndex = index)
+    }
+
     addProjectSelector(name, index) {
         const projectSelectorTemp = document.getElementById('projectSelectorTemp').content.cloneNode(true)
         const projectSelectorOption = projectSelectorTemp.querySelector('.projectSelectorOption')
@@ -43,12 +58,12 @@ class DisplayController {
     }
 
     showSelectedProject() {
-        let project = document.getElementById('projectSelector').value
-
+        let projectIndex = document.getElementById('projectSelector').value
         let showAll = document.querySelector('#showAll').checked
-        let selectedProject = this.projectList[project]
+        let selectedProject = this.projectList[projectIndex]
         let selectedTodoList = selectedProject.todoList
 
+        // This re-renders all TODOs even if showAll is already True upon Project change (TODO: optimize)
         const myNode = document.getElementById("todoList");
         while (myNode.firstChild) {
             myNode.removeChild(myNode.lastChild);
@@ -57,13 +72,13 @@ class DisplayController {
         if (showAll) {
             this.projectList.forEach((project, index) => {
                 let projectIndex = index
-                project.todoList.forEach((Todo, index) => {
-                    this.displayController.addTodoCard(Todo.title, Todo.desc, Todo.date, Todo.starred, index, projectIndex)
+                project.todoList.forEach((todo, index) => {
+                    this.displayController.addTodoCard(todo.title, todo.desc, todo.date, todo.starred, index, projectIndex)
                 })
             })
         } else {
-            selectedTodoList.forEach((Todo, index) => {
-                this.displayController.addTodoCard(Todo.title, Todo.desc, Todo.date, Todo.starred, index, project)
+            selectedTodoList.forEach((todo, index) => {
+                this.displayController.addTodoCard(todo.title, todo.desc, todo.date, todo.starred, index, projectIndex)
             })
         }
     }
@@ -78,11 +93,24 @@ class DisplayController {
         const todoText = todoCard.querySelector('.todoText')
         const todoDate = todoCard.querySelector('.todoDate')
         const todoStarred = todoCard.querySelector('.todoStarred')
+        const todoEditBtn = todoCard.querySelector('.todoEditBtn')
 
         todoTitle.textContent = title
         todoText.textContent = desc
-        todoDate.textContent = date
-        todoStarred.textContent = starred
+
+        if (date !== '') {
+            todoDate.textContent = ` ${date}`
+        } else {
+            todoDate.style.display = 'none'
+        };
+
+        if (starred) {
+            todoStarred.style.display = 'show'
+            todoEditBtn.classList.remove('ms-auto')
+        } else {
+            todoStarred.style.display = 'none'
+            todoEditBtn.classList.add('ms-auto')
+        }
 
         document.getElementById('todoList').appendChild(todoCardTemp)
     }
@@ -99,6 +127,17 @@ class App {
         document.getElementById('projectForm').addEventListener('submit', this.submitProjectForm.bind(this));
         document.getElementById('projectSelector').addEventListener('change', this.displayController.showSelectedProject.bind(this));
         document.getElementById('showAll').addEventListener('change', this.displayController.showSelectedProject.bind(this));
+        document.addEventListener('click', (event) => {
+            const todoDeleteBtn = event.target.closest('.todoDeleteBtn')
+            const todoEditBtn = event.target.closest('.todoEditBtn')
+            if (todoDeleteBtn) {
+                const todoCard = todoDeleteBtn.closest('.todoCard')
+                this.btnDeleteTodo(todoCard)
+            }
+            if (todoEditBtn) {
+                console.log("hey")
+            }
+        })
     }
 
     addProject(name) {
@@ -109,11 +148,15 @@ class App {
 
     submitProjectForm(event) {
         event.preventDefault()
-
         let name = document.getElementById('projectName').value
-
         this.addProject(name)
         hideModalAndResetForm('projectFormModal', 'projectForm');
+    }
+
+    btnDeleteTodo(todoCard) {
+        let projectIndex = todoCard.dataset.projectIndex
+        let todoIndex = todoCard.dataset.todoIndex
+        this.projectList[projectIndex].deleteTodo(todoIndex, todoCard)
     }
 
     submitTodoForm(event) {
@@ -124,20 +167,21 @@ class App {
         let date = document.getElementById('todoDate').value
         const todoStarredCheckbox = document.querySelector('#todoStarred')
         let starred = todoStarredCheckbox.checked
-        let project = document.getElementById('projectSelector').value
+        let projectIndex = document.getElementById('projectSelector').value
 
-        this.projectList[project].addTodo(title, desc, date, starred, project)
+        this.projectList[projectIndex].addTodo(title, desc, date, starred, projectIndex)
         hideModalAndResetForm('todoFormModal', 'todoForm');
     }
 
     createSampleData() {
-        this.addProject('Project A');
+        this.addProject('Project A')
         this.addProject('Project B')
-        this.projectList[0].addTodo('Task 1', 'Description for Task 1', '2023-09-10', false, 0);
-        this.projectList[0].addTodo('Task 2', 'Description for Task 2', '2023-09-15', true, 0);
-        this.projectList[1].addTodo('Task 3', 'Description for Task 3', '2023-09-12', false, 1);
+        this.projectList[0].addTodo('Task 1', 'Description for Task 1', '', false, 0);
+        this.projectList[0].addTodo('Task 2', 'Description for Task 2', '2023-09-15', false, 0);
+        this.projectList[1].addTodo('Task 3', 'Description for Task 3', '', true, 1);
+        this.projectList[1].addTodo('Task 33', 'Description for Task 3', '', true, 1);
         this.projectList[1].addTodo('Task 4', 'Description for Task 4', '2023-09-20', true, 1);
-        this.projectList[2].addTodo('Task 5', 'Description for Task 5', '2023-09-21', true, 0);
+        this.projectList[2].addTodo('Task 5', 'Description for Task 5', '2023-09-21', true, 2);
     }
 }
 

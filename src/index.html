@@ -25,11 +25,28 @@
 
         <div class="form-check mt-3">
             <input class="form-check-input" type="checkbox" value="" id="showAll" checked>
-            <label class="form-check-label"  for="showAll">Show all</label>
+            <label class="form-check-label" for="showAll">Show all</label>
         </div>
 
         <div id="todoList" class="vstack gap-3 w-50 mt-5">
             <!-- Todo Cards -->
+            <!-- <div data-projectIndex="" data-todoIndex="" class="card todoCard">
+                <div class="card-body todoBody">
+                    <h5 class="card-title todoTitle">Go to the Gym</h5>
+                    <p class="card-text todoText">Squats, bench, deadlift and really hard shit that needs to be done
+                        everyday so I could train and become the athletic person I truly want to be.</p>
+                </div>
+                <div class="card-footer p-1 px-2">
+                    <div class="hstack gap-2">
+                        <i class="bi bi-alarm-fill mx-1 text-secondary"> 10-12-2022</i>
+                        <i class="bi bi-star-fill text-warning mx-2 ms-auto"></i>
+                        <button type="button" class="btn btn-primary btn-sm"><i
+                                class="bi bi-pencil-fill text-white stroke-2 m"></i></button>
+                        <button type="button" class="btn btn-danger btn-sm"><i
+                                class="bi bi-trash-fill text-white stroke-2 m"></i></button>
+                    </div>
+                </div>
+            </div> -->
         </div>
 
         <!-- Todo List Creation Template -->
@@ -38,8 +55,16 @@
                 <div class="card-body todoBody">
                     <h5 class="card-title todoTitle"></h5>
                     <p class="card-text todoText"></p>
-                    <p class="card-text todoDate"></p>
-                    <p class="card-text todoStarred"></p>
+                </div>
+                <div class="card-footer p-1 px-2">
+                    <div class="todoFooter hstack gap-2">
+                        <i class="bi bi-alarm-fill mx-1 text-secondary todoDate"></i>
+                        <i class="bi bi-star-fill text-warning px-2 ms-auto todoStarred"></i>
+                        <button type="button" class="btn btn-primary btn-sm todoEditBtn"><i
+                                class="bi bi-pencil-fill text-white stroke-2 m"></i></button>
+                        <button type="button" class="btn btn-danger btn-sm todoDeleteBtn"><i
+                                class="bi bi-trash-fill text-white stroke-2 m"></i></button>
+                    </div>
                 </div>
             </div>
         </template>
@@ -61,7 +86,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="todoDesc" class="form-label">Description</label>
-                                <input type="text" class="form-control" id="todoDesc">
+                                <textarea type="text" class="form-control" id="todoDesc"></textarea>
                             </div>
                             <div class="mb-3">
                                 <label for="todoDate" class="form-label">Date</label>
