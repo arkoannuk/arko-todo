@@ -6,7 +6,7 @@
   "scripts": {
     "start": "vite",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "vite build src --emptyOutDir"
+    "build": "vite build src"
   },
   "keywords": [],
   "author": "",
