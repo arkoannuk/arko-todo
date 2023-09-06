@@ -31,19 +31,57 @@ class Project {
 
     deleteTodo(todoIndex, todoCard) {
         this.todoList.splice(todoIndex, 1)
-        console.log(this.todoList)
         this.displayController.deleteTodoCard(todoCard)
     }
 
+    editTodo(title, desc, date, starred, todoIndex, projectIndex) {
+        let todo = this.todoList[todoIndex]
+        todo.title = title
+        todo.desc = desc
+        todo.date = date
+        todo.starred = starred
+
+        this.displayController.editTodoCard(title, desc, date, starred, todoIndex, projectIndex)
+    }
 }
 
 class DisplayController {
+
+    editTodoCard(title, desc, date, starred, todoIndex, projectIndex) {
+        let todoCard = document.querySelector(`[data-project-index="${projectIndex}"][data-todo-index="${todoIndex}"]`)
+       console.log(todoCard)
+
+        const todoTitle = todoCard.querySelector('.todoTitle')
+        const todoDesc = todoCard.querySelector('.todoDesc')
+        const todoDate = todoCard.querySelector('.todoDate')
+        const todoStarred = todoCard.querySelector('.todoStarred')
+        const todoEditBtn = todoCard.querySelector('.todoEditBtn')
+
+        todoTitle.textContent = title
+        todoDesc.textContent = desc    
+
+        if (date !== '') {
+            console.log("test")
+            todoDate.textContent = ` ${date}`
+            todoDate.style.display = 'block'
+        } else {
+            todoDate.textContent = ` ${date}`
+            todoDate.style.display = 'none'
+        };
+
+        if (starred) {
+            todoStarred.style.display = 'block'
+            todoEditBtn.classList.remove('ms-auto')
+        } else {
+            todoStarred.style.display = 'none'
+            todoEditBtn.classList.add('ms-auto')
+        }
+    }
 
     deleteTodoCard(todoCard) {
         let projectIndex = todoCard.dataset.projectIndex
         todoCard.remove()
         let remainingTodoCards = document.querySelectorAll(`[data-project-index="${projectIndex}"]`);
-        console.log(remainingTodoCards)
         remainingTodoCards.forEach((card, index) => card.dataset.todoIndex = index)
     }
 
@@ -90,22 +128,25 @@ class DisplayController {
         todoCard.dataset.todoIndex = todoIndex
 
         const todoTitle = todoCard.querySelector('.todoTitle')
-        const todoText = todoCard.querySelector('.todoText')
+        const todoDesc = todoCard.querySelector('.todoDesc')
         const todoDate = todoCard.querySelector('.todoDate')
         const todoStarred = todoCard.querySelector('.todoStarred')
         const todoEditBtn = todoCard.querySelector('.todoEditBtn')
 
         todoTitle.textContent = title
-        todoText.textContent = desc
+        todoDesc.textContent = desc
 
         if (date !== '') {
+            console.log("test")
             todoDate.textContent = ` ${date}`
+            todoDate.style.display = 'block'
         } else {
+            todoDate.textContent = ` ${date}`
             todoDate.style.display = 'none'
         };
 
         if (starred) {
-            todoStarred.style.display = 'show'
+            todoStarred.style.display = 'block'
             todoEditBtn.classList.remove('ms-auto')
         } else {
             todoStarred.style.display = 'none'
@@ -113,6 +154,27 @@ class DisplayController {
         }
 
         document.getElementById('todoList').appendChild(todoCardTemp)
+    }
+
+    showEditModal(todoCard) {
+        let todoTitle = todoCard.querySelector('.todoTitle').textContent
+        let todoDesc = todoCard.querySelector('.todoDesc').textContent
+        let todoDate = todoCard.querySelector('.todoDate').textContent
+        let todoStarred = todoCard.querySelector('.todoStarred')
+
+        let editTodoFormModal = document.getElementById('editTodoFormModal')
+        editTodoFormModal.dataset.projectIndex = todoCard.dataset.projectIndex
+        editTodoFormModal.dataset.todoIndex = todoCard.dataset.todoIndex
+
+        document.getElementById("todoEditTitle").value = todoTitle;
+        document.getElementById("todoEditDesc").value = todoDesc;
+        document.getElementById("todoEditDate").value = todoDate.slice(1)
+
+        if (todoStarred.style.display !== 'none') {
+            document.getElementById("todoEditStarred").checked = true
+        } else {
+            document.getElementById("todoEditStarred").checked = false
+        }
     }
 }
 
@@ -127,15 +189,18 @@ class App {
         document.getElementById('projectForm').addEventListener('submit', this.submitProjectForm.bind(this));
         document.getElementById('projectSelector').addEventListener('change', this.displayController.showSelectedProject.bind(this));
         document.getElementById('showAll').addEventListener('change', this.displayController.showSelectedProject.bind(this));
+        document.getElementById('editTodoForm').addEventListener('submit', this.submitEditTodoForm.bind(this));
+
         document.addEventListener('click', (event) => {
-            const todoDeleteBtn = event.target.closest('.todoDeleteBtn')
-            const todoEditBtn = event.target.closest('.todoEditBtn')
+            const todoDeleteBtn = event.target.closest('.todoDeleteBtn');
+            const todoEditBtn = event.target.closest('.todoEditBtn');
+            const todoCard = event.target.closest('.todoCard'); // Move this line here
+
             if (todoDeleteBtn) {
-                const todoCard = todoDeleteBtn.closest('.todoCard')
-                this.btnDeleteTodo(todoCard)
+                this.btnDeleteTodo(todoCard);
             }
             if (todoEditBtn) {
-                console.log("hey")
+                this.displayController.showEditModal(todoCard);
             }
         })
     }
@@ -144,6 +209,24 @@ class App {
         this.projectList.push(new Project(name))
         let index = this.projectList.length - 1
         this.displayController.addProjectSelector(name, index)
+    }
+
+    submitEditTodoForm(event) {
+        event.preventDefault()
+
+        let editTodoFormModal = document.getElementById('editTodoFormModal')
+        let projectIndex = editTodoFormModal.dataset.projectIndex
+        let todoIndex = editTodoFormModal.dataset.todoIndex
+
+        let title = document.getElementById('todoEditTitle').value
+        let desc = document.getElementById('todoEditDesc').value
+        let date = document.getElementById('todoEditDate').value
+
+        const todoStarredCheckbox = document.querySelector('#todoEditStarred')
+        let starred = todoStarredCheckbox.checked
+
+        this.projectList[projectIndex].editTodo(title, desc, date, starred, todoIndex, projectIndex)
+        hideModalAndResetForm('editTodoFormModal', 'editTodoForm');
     }
 
     submitProjectForm(event) {

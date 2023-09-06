@@ -51,16 +51,16 @@
 
         <!-- Todo List Creation Template -->
         <template id="todoCardTemp">
-            <div data-projectIndex="" data-todoIndex="" class="card todoCard">
+            <div data-project-index="" data-todo-index="" class="card todoCard">
                 <div class="card-body todoBody">
                     <h5 class="card-title todoTitle"></h5>
-                    <p class="card-text todoText"></p>
+                    <p class="card-text todoDesc"></p>
                 </div>
                 <div class="card-footer p-1 px-2">
                     <div class="todoFooter hstack gap-2">
                         <i class="bi bi-alarm-fill mx-1 text-secondary todoDate"></i>
                         <i class="bi bi-star-fill text-warning px-2 ms-auto todoStarred"></i>
-                        <button type="button" class="btn btn-primary btn-sm todoEditBtn"><i
+                        <button type="button" class="btn btn-primary btn-sm todoEditBtn" data-bs-toggle="modal" data-bs-target="#editTodoFormModal"><i
                                 class="bi bi-pencil-fill text-white stroke-2 m"></i></button>
                         <button type="button" class="btn btn-danger btn-sm todoDeleteBtn"><i
                                 class="bi bi-trash-fill text-white stroke-2 m"></i></button>
@@ -97,6 +97,40 @@
                                 <label class="form-check-label" for="todoStarred">Starred?</label>
                             </div>
                             <button type="submit" class="btn btn-primary">Add</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Todo Modal -->
+        <div class="modal fade" id="editTodoFormModal" tabindex="-1" aria-labelledby="editTodoFormModalLabel"
+            aria-hidden="true" data-todo-index="" data-project-index="">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="editTodoFormModalLabel">Edit Todo</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editTodoForm">
+                            <div class="mb-3">
+                                <label for="todoTitle" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="todoEditTitle">
+                            </div>
+                            <div class="mb-3">
+                                <label for="todoDesc" class="form-label">Description</label>
+                                <textarea type="text" class="form-control" id="todoEditDesc"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="todoDate" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="todoEditDate">
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="todoEditStarred">
+                                <label class="form-check-label" for="todoEditStarred">Starred?</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Edit</button>
                         </form>
                     </div>
                 </div>
