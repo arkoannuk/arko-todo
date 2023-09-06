@@ -49,7 +49,6 @@ class DisplayController {
 
     editTodoCard(title, desc, date, starred, todoIndex, projectIndex) {
         let todoCard = document.querySelector(`[data-project-index="${projectIndex}"][data-todo-index="${todoIndex}"]`)
-       console.log(todoCard)
 
         const todoTitle = todoCard.querySelector('.todoTitle')
         const todoDesc = todoCard.querySelector('.todoDesc')
@@ -61,7 +60,6 @@ class DisplayController {
         todoDesc.textContent = desc    
 
         if (date !== '') {
-            console.log("test")
             todoDate.textContent = ` ${date}`
             todoDate.style.display = 'block'
         } else {
@@ -137,7 +135,6 @@ class DisplayController {
         todoDesc.textContent = desc
 
         if (date !== '') {
-            console.log("test")
             todoDate.textContent = ` ${date}`
             todoDate.style.display = 'block'
         } else {
@@ -187,10 +184,10 @@ class App {
 
         document.getElementById('todoForm').addEventListener('submit', this.submitTodoForm.bind(this));
         document.getElementById('projectForm').addEventListener('submit', this.submitProjectForm.bind(this));
+        document.getElementById('projectForm').addEventListener('submit', this.displayController.showSelectedProject.bind(this));
         document.getElementById('projectSelector').addEventListener('change', this.displayController.showSelectedProject.bind(this));
         document.getElementById('showAll').addEventListener('change', this.displayController.showSelectedProject.bind(this));
         document.getElementById('editTodoForm').addEventListener('submit', this.submitEditTodoForm.bind(this));
-
         document.addEventListener('click', (event) => {
             const todoDeleteBtn = event.target.closest('.todoDeleteBtn');
             const todoEditBtn = event.target.closest('.todoEditBtn');
