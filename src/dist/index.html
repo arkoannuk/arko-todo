@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bootstrap w/ Vite</title>
-  <script type="module" crossorigin src="/assets/index-dd65a424.js"></script>
+  <script type="module" crossorigin src="/assets/index-dfab8429.js"></script>
   <link rel="stylesheet" href="/assets/index-9b723dd9.css">
 </head>
 
@@ -13,7 +13,7 @@
     <div class="container py-4 px-3 mx-auto">
         <h1>Todo List</h1>
 
-        <div class="card w-25 mt-5">
+        <div class="card w-50 mt-3">
             <div class="card-body">
                 <div class="hstack">
                     <p class="mb-0 mx-1 fw-bold">Select Project</p>
@@ -30,18 +30,21 @@
                     </template>
                 </select>
                 <div class="hstack gap-2 mt-2">
-                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal"
-                    data-bs-target="#projectFormModal">Add
-                    Project</button>
-                    <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal"
-                        data-bs-target="#projectFormModal">Delete
-                        Project</button>
+                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#projectFormModal">Add Project</button>
+                    <button type="button" class="btn btn-danger w-100" id="deleteProject">Delete Project</button>
                 </div>
             </div>
             <div class="card-footer">
-                <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#todoFormModal">Add
-                    Todo</button>
-            </div>
+                <div class="vstack">
+                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal"
+                        data-bs-target="#todoFormModal">Add
+                        Todo</button>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="showCompleted">
+                        <label class="form-check-label" for="showCompleted">Show completed</label>
+                    </div>
+                </div>          </div>
+
         </div>
 
 
@@ -75,6 +78,9 @@
                 </div>
                 <div class="card-footer p-1 px-2">
                     <div class="todoFooter hstack gap-2">
+
+                        <input class="form-check-input my-0 todoStatusBtn" type="checkbox" value="">
+                        <label class="form-check-label" for="todoStatusBtn">Complete</label>
                         <i class="bi bi-alarm-fill mx-1 text-secondary todoDate"></i>
                         <i class="bi bi-star-fill text-warning px-2 ms-auto todoStarred"></i>
                         <button type="button" class="btn btn-primary btn-sm todoEditBtn" data-bs-toggle="modal"
