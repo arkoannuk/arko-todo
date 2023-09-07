@@ -11,7 +11,7 @@
     <div class="container py-4 px-3 mx-auto">
         <h1>Todo List</h1>
 
-        <div class="card w-25">
+        <div class="card w-50 mt-3">
             <div class="card-body">
                 <div class="hstack">
                     <p class="mb-0 mx-1 fw-bold">Select Project</p>
@@ -28,18 +28,21 @@
                     </template>
                 </select>
                 <div class="hstack gap-2 mt-2">
-                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal"
-                    data-bs-target="#projectFormModal">Add
-                    Project</button>
-                    <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal"
-                        data-bs-target="#projectFormModal">Delete
-                        Project</button>
+                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#projectFormModal">Add Project</button>
+                    <button type="button" class="btn btn-danger w-100" id="deleteProject">Delete Project</button>
                 </div>
             </div>
             <div class="card-footer">
-                <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#todoFormModal">Add
-                    Todo</button>
-            </div>
+                <div class="vstack">
+                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal"
+                        data-bs-target="#todoFormModal">Add
+                        Todo</button>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="showAll" checked>
+                        <label class="form-check-label" for="showAll">Show completed</label>
+                    </div>
+                </div>          </div>
+
         </div>
 
 
@@ -73,6 +76,11 @@
                 </div>
                 <div class="card-footer p-1 px-2">
                     <div class="todoFooter hstack gap-2">
+
+                        <input class="form-check-input my-0" type="checkbox" value="" id="flexCheckDefault">
+                        <label class="form-check-label" for="flexCheckDefault">Complete</label>
+
+
                         <i class="bi bi-alarm-fill mx-1 text-secondary todoDate"></i>
                         <i class="bi bi-star-fill text-warning px-2 ms-auto todoStarred"></i>
                         <button type="button" class="btn btn-primary btn-sm todoEditBtn" data-bs-toggle="modal"

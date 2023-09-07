@@ -57,7 +57,7 @@ class DisplayController {
         const todoEditBtn = todoCard.querySelector('.todoEditBtn')
 
         todoTitle.textContent = title
-        todoDesc.textContent = desc    
+        todoDesc.textContent = desc
 
         if (date !== '') {
             todoDate.textContent = ` ${date}`
@@ -91,6 +91,13 @@ class DisplayController {
         projectSelectorOption.value = index
 
         document.getElementById('projectSelector').appendChild(projectSelectorTemp)
+    }
+
+    deleteProjectSelector() {
+        let projectSelector = document.getElementById('projectSelector')
+        let deletableProject = projectSelector.value
+        let optionToRemove = projectSelector.querySelector(`option[value="${deletableProject}"]`);
+        projectSelector.removeChild(optionToRemove);
     }
 
     showSelectedProject() {
@@ -183,6 +190,8 @@ class App {
         this.displayController = new DisplayController()
 
         document.getElementById('todoForm').addEventListener('submit', this.submitTodoForm.bind(this));
+        document.getElementById('deleteProject').addEventListener('click', this.deleteProject.bind(this));
+        document.getElementById('deleteProject').addEventListener('click', this.displayController.showSelectedProject.bind(this));
         document.getElementById('projectForm').addEventListener('submit', this.submitProjectForm.bind(this));
         document.getElementById('projectForm').addEventListener('submit', this.displayController.showSelectedProject.bind(this));
         document.getElementById('projectSelector').addEventListener('change', this.displayController.showSelectedProject.bind(this));
@@ -200,6 +209,18 @@ class App {
                 this.displayController.showEditModal(todoCard);
             }
         })
+    }
+
+    deleteProject() {
+        let projectIndex = document.getElementById('projectSelector').value
+        if (projectIndex != 0) { //Default project can't be deleted
+            this.projectList.splice(projectIndex, 1)
+            console.log(this.projectList)
+            this.displayController.deleteProjectSelector()
+
+        } else {
+            alert("Default project can't be deleted")
+        }
     }
 
     addProject(name) {
