@@ -5,7 +5,10 @@ import '../scss/styles.scss'
 import * as bootstrap from 'bootstrap'
 
 // Import custom utils
-import { hideModalAndResetForm } from './utils.js';
+import { hideModalAndResetForm } from './utils.js'
+
+// Import data-fns
+import { format, parseISO } from 'date-fns'
 
 class Todo {
     constructor(title, desc, date, starred, status) {
@@ -88,9 +91,9 @@ class DisplayController {
 
     hideTodoCard(checked, todoIndex, projectIndex) {
         let todoCard = document.querySelector(`[data-project-index="${projectIndex}"][data-todo-index="${todoIndex}"]`)
-        let showCompleted = document.querySelector('#showCompleted').checked
+        let showDone = document.querySelector('#showDone').checked
 
-        if (checked && showCompleted != true) {
+        if (checked && showDone != true) {
             todoCard.style.display = 'none'
         } else {
             todoCard.style.display = 'show'
@@ -110,10 +113,11 @@ class DisplayController {
         todoDesc.textContent = desc
 
         if (date !== '') {
+            // todoDate.textContent = ` ${format(parseISO(date), 'dd-MM-yy')}`
             todoDate.textContent = ` ${date}`
             todoDate.style.display = 'block'
         } else {
-            todoDate.textContent = ` ${date}`
+            todoDate.textContent = ``
             todoDate.style.display = 'none'
         };
 
@@ -151,14 +155,14 @@ class DisplayController {
 
         let options = projectSelector.getElementsByTagName('option');
         for (let i = 0; i < options.length; i++) { // Update remaining selector values
-                options[i].value = i
+            options[i].value = i
         }
     }
 
     showSelectedProject() {
         let projectIndex = document.getElementById('projectSelector').value
         let showAll = document.querySelector('#showAll').checked
-        let showCompleted = document.querySelector('#showCompleted').checked
+        let showDone = document.querySelector('#showDone').checked
 
         // This re-renders all TODOs even if showAll is already True upon Project change (TODO: optimize)
         const myNode = document.getElementById("todoList");
@@ -197,12 +201,12 @@ class DisplayController {
         }
 
         let todoCards = document.querySelectorAll('.todoCard');
-        let completedTodoCards = Array.from(todoCards).filter((todoCard) => {
+        let DoneTodoCards = Array.from(todoCards).filter((todoCard) => {
             let status = todoCard.querySelector('input.todoStatusBtn')
             return status.checked
         });
-        completedTodoCards.forEach((todoCard) => {
-            if (showCompleted) {
+        DoneTodoCards.forEach((todoCard) => {
+            if (showDone) {
                 todoCard.style.display = 'show'
             } else {
                 todoCard.style.display = 'none'
@@ -226,6 +230,7 @@ class DisplayController {
         todoTitle.textContent = title
         todoDesc.textContent = desc
 
+
         if (status) {
             todoStatusBtn.checked = true
         } else {
@@ -233,10 +238,11 @@ class DisplayController {
         }
 
         if (date !== '') {
+            // todoDate.textContent = ` ${format(parseISO(date), 'dd-MM-yy')}`
             todoDate.textContent = ` ${date}`
             todoDate.style.display = 'show'
         } else {
-            todoDate.textContent = ` ${date}`
+            todoDate.textContent = ``
             todoDate.style.display = 'none'
         }
 
@@ -260,7 +266,7 @@ class DisplayController {
     showEditModal(todoCard) {
         let todoTitle = todoCard.querySelector('.todoTitle').textContent
         let todoDesc = todoCard.querySelector('.todoDesc').textContent
-        let todoDate = todoCard.querySelector('.todoDate').textContent
+        let todoDate = todoCard.querySelector('.todoDate').textContent // This shit is not working
         let todoStarred = todoCard.querySelector('.todoStarred')
 
         let editTodoFormModal = document.getElementById('editTodoFormModal')
@@ -293,7 +299,7 @@ class App {
         document.getElementById('projectForm').addEventListener('submit', this.displayController.showSelectedProject.bind(this))
         document.getElementById('projectSelector').addEventListener('change', this.displayController.showSelectedProject.bind(this))
         document.getElementById('showAll').addEventListener('change', this.displayController.showSelectedProject.bind(this));
-        document.getElementById('showCompleted').addEventListener('click', this.displayController.showSelectedProject.bind(this))
+        document.getElementById('showDone').addEventListener('click', this.displayController.showSelectedProject.bind(this))
         document.getElementById('editTodoForm').addEventListener('submit', this.submitEditTodoForm.bind(this))
         document.addEventListener('click', (event) => {
             const todoDeleteBtn = event.target.closest('.todoDeleteBtn')
@@ -395,7 +401,6 @@ class App {
         this.projectList[1].addTodo('Task 44', 'Description for Task 4', '2023-09-20', true, false, 1);
         this.projectList[1].addTodo('Task 5', 'Description for Task 4', '2023-06-10', true, false, 1);
         this.projectList[2].addTodo('Task 5', 'Description for Task 5', '2023-09-21', true, false, 2);
-
         console.log(this.projectList)
     }
 
@@ -413,5 +418,3 @@ class App {
 const app = new App()
 app.createSampleData()
 app.callOutSort()
-
-// TODO: deleting project A and then project B does not work

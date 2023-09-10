@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script type="module" src="./js/main.js"></script>
+    <link rel="icon" type="image/x-icon" href="./check.png">
     <title>Todo List</title>
 </head>
 
@@ -38,8 +39,8 @@
                                 data-bs-target="#todoFormModal">Add
                                 Todo</button>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="showCompleted">
-                                <label class="form-check-label" for="showCompleted">Show completed</label>
+                                <input class="form-check-input" type="checkbox" value="" id="showDone">
+                                <label class="form-check-label" for="showDone">Show done</label>
                             </div>
                         </div>
                     </div>
@@ -65,11 +66,11 @@
                 <p class="card-text todoDesc"></p>
             </div>
             <div class="card-footer p-1 px-2">
-                <div class="todoFooter hstack gap-2">
+                <div class="todoFooter hstack gap-2"> <!-- This needs to be fixed to wokr on screens smaller than 380px-->
 
                     <input class="form-check-input my-0 todoStatusBtn" type="checkbox" value="">
-                    <label class="form-check-label" for="todoStatusBtn">Complete</label>
-                    <i class="bi bi-alarm-fill mx-1 text-secondary todoDate"></i>
+                    <label class="form-check-label" for="todoStatusBtn">Done</label>
+                    <i class="bi bi-alarm-fill mx-2  text-secondary todoDate text-nowrap"></i>
                     <i class="bi bi-star-fill text-warning px-2 ms-auto todoStarred"></i>
                     <button type="button" class="btn btn-primary btn-sm todoEditBtn" data-bs-toggle="modal"
                         data-bs-target="#editTodoFormModal"><i
