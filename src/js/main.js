@@ -25,7 +25,6 @@ class Project {
         this.name = name
         this.todoList = []
         this.displayController = new DisplayController()
-        this.sortedTodoList = []
     }
 
     completeTodo(checked, todoIndex, projectIndex) {
@@ -40,8 +39,11 @@ class Project {
 
     addTodo(title, desc, date, starred, status, projectIndex) {
         this.todoList.push(new Todo(title, desc, date, starred, status))
-        let todoIndex = this.todoList.length - 1
+        let todoIndex = this.todoList.length - 1 // This is being calculated wrong since the this.todoList will be sorted | Should've used IDs from the start (TODO: Optimize)
+        this.todoList = this.sortTodoList(this.todoList)
+        console.log(this.todoList)
         this.displayController.addTodoCard(title, desc, date, starred, status, todoIndex, projectIndex, true)
+        app.callOutSort() // Otherwise the todoIndex won't properly get updated (TODO: Optimize)
     }
 
     deleteTodo(todoIndex, todoCard) {
@@ -160,9 +162,10 @@ class DisplayController {
     }
 
     showSelectedProject() {
-        let projectIndex = document.getElementById('projectSelector').value
-        let showAll = document.querySelector('#showAll').checked
-        let showDone = document.querySelector('#showDone').checked
+        const projectIndex = document.getElementById('projectSelector').value
+        const showAll = document.querySelector('#showAll').checked
+        const showDone = document.querySelector('#showDone').checked
+        const storedProjects = app.getStorage()
 
         // This re-renders all TODOs even if showAll is already True upon Project change (TODO: optimize)
         const myNode = document.getElementById("todoList");
@@ -171,25 +174,24 @@ class DisplayController {
         }
 
         if (showAll) {
-            this.projectList.forEach((project, projectIndex) => {
-                let sortedTodoList = project.sortTodoList(project.todoList)
+            storedProjects.forEach((project, projectIndex) => {
                 let projectName = document.createElement('h3');
                 projectName.classList.add('mt-2', 'text-center', "text-secondary")
                 projectName.textContent = `${project.name}`
 
 
-                sortedTodoList.forEach((todo, todoIndex) => {
+                project.todoList.forEach((todo, todoIndex) => {
                     if (todoIndex === 0) {
                         document.getElementById('todoList').appendChild(projectName);
                     }
                     this.displayController.addTodoCard(todo.title, todo.desc, todo.date, todo.starred, todo.status, todoIndex, projectIndex, false);
                 });
-                if (sortedTodoList.length === 0) {
+                if (project.todoList.length === 0) {
                     document.getElementById('todoList').appendChild(projectName);
                 }
             })
         } else {
-            let selectedProject = this.projectList[projectIndex]
+            let selectedProject = storedProjects[projectIndex]
             let projectName = document.createElement('h3');
             projectName.classList.add('mt-2', 'text-center', "text-secondary")
             projectName.textContent = `${selectedProject.name}`
@@ -261,6 +263,8 @@ class DisplayController {
         } else {
             document.getElementById('todoList').appendChild(todoCardTemp)
         }
+
+
     }
 
     showEditModal(todoCard) {
@@ -289,7 +293,7 @@ class App {
     constructor() {
         this.projectList = []
         const defaultProject = new Project('Default')
-        this.projectList.push(defaultProject)
+        // this.projectList.push(defaultProject)
         this.displayController = new DisplayController()
 
         document.getElementById('todoForm').addEventListener('submit', this.submitTodoForm.bind(this))
@@ -372,7 +376,12 @@ class App {
     btnDeleteTodo(todoCard) {
         let projectIndex = todoCard.dataset.projectIndex
         let todoIndex = todoCard.dataset.todoIndex
-        this.projectList[projectIndex].deleteTodo(todoIndex, todoCard)
+
+        const storedProjects = this.getStorage()
+
+        // this.projectList[projectIndex].deleteTodo(todoIndex, todoCard)
+        storedProjects[projectIndex].deleteTodo(todoIndex, todoCard)
+        localStorage.setItem('appJSON', JSON.stringify(storedProjects))
     }
 
     submitTodoForm(event) {
@@ -386,22 +395,35 @@ class App {
         let status = false
         let projectIndex = document.getElementById('projectSelector').value
 
-        this.projectList[projectIndex].addTodo(title, desc, date, starred, status, projectIndex)
-        hideModalAndResetForm('todoFormModal', 'todoForm');
+        const storedProjects = this.getStorage()
+
+        // this.projectList[projectIndex].addTodo(title, desc, date, starred, status, projectIndex)
+        storedProjects[projectIndex].addTodo(title, desc, date, starred, status, projectIndex)
+        localStorage.setItem('appJSON', JSON.stringify(storedProjects))
+        hideModalAndResetForm('todoFormModal', 'todoForm')
     }
 
     createSampleData() {
-        this.addProject('Project A')
-        this.addProject('Project B')
-        this.projectList[0].addTodo('Task 1', 'Description for Task 1', '', false, false, 0)
-        this.projectList[0].addTodo('Task 2', 'Description for Task 2', '2023-09-15', false, false, 0);
-        this.projectList[1].addTodo('Task 3', 'Description for Task 3', '', false, false, 1);
-        this.projectList[1].addTodo('Task 33', 'Description for Task 3', '', true, false, 1);
-        this.projectList[1].addTodo('Task 4', 'Description for Task 4', '2023-09-20', false, false, 1);
-        this.projectList[1].addTodo('Task 44', 'Description for Task 4', '2023-09-20', true, false, 1);
-        this.projectList[1].addTodo('Task 5', 'Description for Task 4', '2023-06-10', true, false, 1);
-        this.projectList[2].addTodo('Task 5', 'Description for Task 5', '2023-09-21', true, false, 2);
-        console.log(this.projectList)
+        // Check if there's no data in localStorage.
+        if (!localStorage.getItem("appJSON")) {
+            // Initialize with default data.
+
+            this.addProject('Default');
+            // this.addProject('Project A');
+            // this.addProject('Project B');
+            
+            this.projectList[0].addTodo('Task 1', 'Description for Task 1', '', false, false, 0);
+            this.projectList[0].addTodo('Task 2', 'Description for Task 2', '2023-09-15', false, false, 0);
+    
+            // this.projectList[1].addTodo('Task 3', 'Description for Task 3', '', false, false, 1);
+            // this.projectList[1].addTodo('Task 4', 'Description for Task 4', '2023-09-20', false, false, 1);
+            // this.projectList[1].addTodo('Task 5', 'Description for Task 4', '2023-06-10', true, false, 1);
+           
+            
+            localStorage.setItem('appJSON', JSON.stringify(this.projectList));
+            console.log("Sample Data Created")
+            console.log(this.projectList)
+        }
     }
 
     callOutSort() {
@@ -413,6 +435,28 @@ class App {
         const event = new Event('change');
         projectSelector.dispatchEvent(event);
     }
+
+    getStorage() {
+        const storedAppJSON = localStorage.getItem("appJSON")
+        const storedAppData = JSON.parse(storedAppJSON)
+        console.log(storedAppData)
+
+        const storedProjects = []
+        storedAppData.forEach((projectData) => {
+            const project = new Project(projectData.name)
+
+            projectData.todoList.forEach((todoData) => {
+                const todo = new Todo(todoData.title, todoData.desc, todoData.date, todoData.starred, todoData.status)
+                project.todoList.push(todo)
+            })
+
+            storedProjects.push(project)
+        })
+
+        console.log(storedProjects)
+        return storedProjects
+    }
+    
 }
 
 const app = new App()
