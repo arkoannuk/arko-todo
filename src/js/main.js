@@ -35,15 +35,14 @@ class Project {
             todo.status = false
         }
         this.displayController.hideTodoCard(checked, todoIndex, projectIndex)
+        this.todoList = this.sortTodoList(this.todoList) // This should be sorted when clicking
     }
 
     addTodo(title, desc, date, starred, status, projectIndex) {
         this.todoList.push(new Todo(title, desc, date, starred, status))
         let todoIndex = this.todoList.length - 1 // This is being calculated wrong since the this.todoList will be sorted | Should've used IDs from the start (TODO: Optimize)
         this.todoList = this.sortTodoList(this.todoList)
-        console.log(this.todoList)
         this.displayController.addTodoCard(title, desc, date, starred, status, todoIndex, projectIndex, true)
-        app.callOutSort() // Otherwise the todoIndex won't properly get updated (TODO: Optimize)
     }
 
     deleteTodo(todoIndex, todoCard) {
@@ -139,16 +138,6 @@ class DisplayController {
         remainingTodoCards.forEach((card, index) => card.dataset.todoIndex = index)
     }
 
-    addProjectSelector(name, index) {
-        const projectSelectorTemp = document.getElementById('projectSelectorTemp').content.cloneNode(true)
-        const projectSelectorOption = projectSelectorTemp.querySelector('.projectSelectorOption')
-
-        projectSelectorOption.textContent = name
-        projectSelectorOption.value = index
-
-        document.getElementById('projectSelector').appendChild(projectSelectorTemp)
-    }
-
     deleteProjectSelector() {
         let projectSelector = document.getElementById('projectSelector')
         let deletableProject = projectSelector.value
@@ -166,6 +155,14 @@ class DisplayController {
         const showAll = document.querySelector('#showAll').checked
         const showDone = document.querySelector('#showDone').checked
         const storedProjects = app.getStorage()
+
+        storedProjects.forEach((project, projectIndex) => {
+            // Check if a project selector with the same value exists
+            const existingSelector = document.querySelector(`option[value="${projectIndex}"]`);
+            if (!existingSelector) {
+                this.displayController.addProjectSelector(project.name, projectIndex);
+            }
+        })
 
         // This re-renders all TODOs even if showAll is already True upon Project change (TODO: optimize)
         const myNode = document.getElementById("todoList");
@@ -216,6 +213,16 @@ class DisplayController {
         })
     }
 
+    addProjectSelector(name, index) {
+        const projectSelectorTemp = document.getElementById('projectSelectorTemp').content.cloneNode(true)
+        const projectSelectorOption = projectSelectorTemp.querySelector('.projectSelectorOption')
+
+        projectSelectorOption.textContent = name
+        projectSelectorOption.value = index
+
+        document.getElementById('projectSelector').appendChild(projectSelectorTemp)
+    }
+
     addTodoCard(title, desc, date, starred, status, todoIndex, projectIndex, newCard) {
         const todoCardTemp = document.getElementById('todoCardTemp').content.cloneNode(true)
         const todoCard = todoCardTemp.querySelector('.todoCard')
@@ -256,21 +263,19 @@ class DisplayController {
             todoEditBtn.classList.add('ms-auto')
         }
 
-        if (newCard) {
+        if (newCard) { // This is deprecated due to refresh happening after every add
 
             const todoList = document.getElementById('todoList');
             todoList.insertBefore(todoCardTemp, todoList.firstChild);
         } else {
             document.getElementById('todoList').appendChild(todoCardTemp)
         }
-
-
     }
 
     showEditModal(todoCard) {
         let todoTitle = todoCard.querySelector('.todoTitle').textContent
         let todoDesc = todoCard.querySelector('.todoDesc').textContent
-        let todoDate = todoCard.querySelector('.todoDate').textContent // This shit is not working
+        let todoDate = todoCard.querySelector('.todoDate').textContent
         let todoStarred = todoCard.querySelector('.todoStarred')
 
         let editTodoFormModal = document.getElementById('editTodoFormModal')
@@ -292,8 +297,8 @@ class DisplayController {
 class App {
     constructor() {
         this.projectList = []
-        const defaultProject = new Project('Default')
-        // this.projectList.push(defaultProject)
+        // const defaultProject = new Project('Default')
+        // // this.projectList.push(defaultProject)
         this.displayController = new DisplayController()
 
         document.getElementById('todoForm').addEventListener('submit', this.submitTodoForm.bind(this))
@@ -325,16 +330,21 @@ class App {
     }
 
     changeTodoStatus(todoStatusBtn, todoCard) {
+        const storedProjects = this.getStorage()
         let projectIndex = todoCard.dataset.projectIndex
         let todoIndex = todoCard.dataset.todoIndex
         let checked = todoStatusBtn.checked
-        this.projectList[projectIndex].completeTodo(checked, todoIndex, projectIndex)
+        storedProjects[projectIndex].completeTodo(checked, todoIndex, projectIndex)
+        localStorage.setItem('appJSON', JSON.stringify(storedProjects))
+        this.callOutSort()
     }
 
     deleteProject() {
+        const storedProjects = this.getStorage()
         let projectIndex = document.getElementById('projectSelector').value
         if (projectIndex != 0) { //Default project can't be deleted
-            this.projectList.splice(projectIndex, 1);
+            storedProjects.splice(projectIndex, 1)
+            localStorage.setItem('appJSON', JSON.stringify(storedProjects))
             this.displayController.deleteProjectSelector()
 
         } else {
@@ -343,12 +353,15 @@ class App {
     }
 
     addProject(name) {
-        this.projectList.push(new Project(name))
-        let index = this.projectList.length - 1
+        const storedProjects = this.getStorage()
+        storedProjects.push(new Project(name))
+        localStorage.setItem('appJSON', JSON.stringify(storedProjects))
+        let index = storedProjects.length - 1
         this.displayController.addProjectSelector(name, index)
     }
 
     submitEditTodoForm(event) {
+        const storedProjects = this.getStorage()
         event.preventDefault()
 
         let editTodoFormModal = document.getElementById('editTodoFormModal')
@@ -362,7 +375,9 @@ class App {
         const todoStarredCheckbox = document.querySelector('#todoEditStarred')
         let starred = todoStarredCheckbox.checked
 
-        this.projectList[projectIndex].editTodo(title, desc, date, starred, todoIndex, projectIndex)
+        storedProjects[projectIndex].editTodo(title, desc, date, starred, todoIndex, projectIndex)
+        localStorage.setItem('appJSON', JSON.stringify(storedProjects))
+        // this.projectList[projectIndex].editTodo(title, desc, date, starred, todoIndex, projectIndex)
         hideModalAndResetForm('editTodoFormModal', 'editTodoForm');
     }
 
@@ -401,6 +416,7 @@ class App {
         storedProjects[projectIndex].addTodo(title, desc, date, starred, status, projectIndex)
         localStorage.setItem('appJSON', JSON.stringify(storedProjects))
         hideModalAndResetForm('todoFormModal', 'todoForm')
+        app.callOutSort() // Otherwise the todoIndex won't properly get updated (TODO: Optimize)
     }
 
     createSampleData() {
@@ -408,28 +424,26 @@ class App {
         if (!localStorage.getItem("appJSON")) {
             // Initialize with default data.
 
-            this.addProject('Default');
-            // this.addProject('Project A');
-            // this.addProject('Project B');
-            
-            this.projectList[0].addTodo('Task 1', 'Description for Task 1', '', false, false, 0);
-            this.projectList[0].addTodo('Task 2', 'Description for Task 2', '2023-09-15', false, false, 0);
-    
-            // this.projectList[1].addTodo('Task 3', 'Description for Task 3', '', false, false, 1);
-            // this.projectList[1].addTodo('Task 4', 'Description for Task 4', '2023-09-20', false, false, 1);
-            // this.projectList[1].addTodo('Task 5', 'Description for Task 4', '2023-06-10', true, false, 1);
-           
-            
+            // this.addProject('Default');
+            this.projectList.push(new Project('General'))
+            this.projectList.push(new Project('Work'))
+            this.projectList.push(new Project('Health'))
+
+            this.projectList[0].addTodo('Buy Groceries', 'Pick up milk, eggs, bread, and vegetables on the way home from work.', '2023-09-12', true, false, 0);
+            this.projectList[0].addTodo('Plan Vacation', 'Research and plan a family vacation to the beach for next summer.', '', false, false, 0);
+            this.projectList[0].addTodo('Water Plants', 'Weekly watering required for my living room plants.', '', true, true, 0);
+            this.projectList[1].addTodo('Prepare Presentation', 'Create slides and outline for the upcoming client presentation.', '2023-09-25', false, false, 1);
+            this.projectList[2].addTodo('Start Exercise Routine', 'Start a new workout routine, including cardio and strength training.', '2023-09-15', true, false, 2);
+            this.projectList[2].addTodo('Plan Healthier Diet', 'Research and gather a list of healthy recipes for next week.', '2023-09-10', false, false, 2);
+
             localStorage.setItem('appJSON', JSON.stringify(this.projectList));
             console.log("Sample Data Created")
             console.log(this.projectList)
+            this.callOutSort()
         }
     }
 
     callOutSort() {
-        // Set the projectSelector value to "0" (Default)
-        document.getElementById('projectSelector').value = '0';
-
         // Trigger the onChange event of projectSelector
         const projectSelector = document.getElementById('projectSelector');
         const event = new Event('change');
@@ -439,7 +453,6 @@ class App {
     getStorage() {
         const storedAppJSON = localStorage.getItem("appJSON")
         const storedAppData = JSON.parse(storedAppJSON)
-        console.log(storedAppData)
 
         const storedProjects = []
         storedAppData.forEach((projectData) => {
@@ -456,9 +469,10 @@ class App {
         console.log(storedProjects)
         return storedProjects
     }
-    
+
 }
 
 const app = new App()
 app.createSampleData()
 app.callOutSort()
+document.getElementById('projectSelector').value = "0"
